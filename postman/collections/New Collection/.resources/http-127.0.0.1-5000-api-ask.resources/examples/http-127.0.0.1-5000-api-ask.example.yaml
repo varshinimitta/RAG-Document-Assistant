@@ -1,0 +1,29 @@
+$kind: http-example
+name: http://127.0.0.1:5000/api/ask
+request:
+  url: http://127.0.0.1:5000/api/ask
+  method: POST
+  body:
+    type: json
+    content: "{\r
+
+      \    \"question\": \"What is RAG?\"\r
+
+      }"
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    server: Werkzeug/3.1.8 Python/3.11.9
+    date: Thu, 10 Sep 2026 06:14:27 GMT
+    content-type: application/json
+    content-length: "81"
+    connection: close
+  body:
+    type: json
+    content: |-
+      {
+        "message": "Question received successfully!",
+        "question": "What is RAG?"
+      }
+order: 1789020947317

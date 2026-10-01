@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>RAG Document Assistant</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #f5f7fb;
+
+            color: #1f2937;
+        }
+
+
+        .container {
+
+            max-width: 850px;
+
+            margin: 50px auto;
+
+            padding: 20px;
+        }
+
+
+        .header {
+
+            text-align: center;
+
+            margin-bottom: 35px;
+        }
+
+
+        .header h1 {
+
+            margin-bottom: 10px;
+
+            font-size: 32px;
+        }
+
+
+        .header p {
+
+            color: #6b7280;
+
+            font-size: 16px;
+        }
+
+
+        .card {
+
+            background: white;
+
+            padding: 25px;
+
+            margin-bottom: 25px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.06);
+        }
+
+
+        .card h2 {
+
+            margin-top: 0;
+
+            font-size: 20px;
+        }
+
+
+        .upload-area {
+
+            border:
+                2px dashed #cbd5e1;
+
+            border-radius: 10px;
+
+            padding: 25px;
+
+            text-align: center;
+
+            margin-top: 15px;
+        }
+
+
+        input[type="file"] {
+
+            margin-bottom: 15px;
+        }
+
+
+        .question-box {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 15px;
+        }
+
+
+        .question-box input {
+
+            flex: 1;
+
+            padding: 13px;
+
+            border:
+                1px solid #d1d5db;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            outline: none;
+        }
+
+
+        .question-box input:focus {
+
+            border-color: #6366f1;
+        }
+
+
+        button {
+
+            border: none;
+
+            border-radius: 8px;
+
+            padding: 12px 20px;
+
+            font-size: 15px;
+
+            cursor: pointer;
+
+            background: #4f46e5;
+
+            color: white;
+        }
+
+
+        button:hover {
+
+            opacity: 0.9;
+        }
+
+
+        button:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+        }
+
+
+        #uploadStatus {
+
+            margin-top: 15px;
+
+            font-size: 14px;
+        }
+
+
+        .answer-card {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.06);
+        }
+
+
+        .answer-title {
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin-bottom: 15px;
+        }
+
+
+        #answer {
+
+            background: #f8fafc;
+
+            padding: 18px;
+
+            border-radius: 8px;
+
+            line-height: 1.6;
+
+            min-height: 60px;
+
+            white-space: pre-wrap;
+        }
+
+
+        #source {
+
+            margin-top: 15px;
+
+            color: #6b7280;
+
+            font-size: 14px;
+        }
+
+
+        .footer {
+
+            text-align: center;
+
+            margin-top: 30px;
+
+            color: #9ca3af;
+
+            font-size: 13px;
+        }
+
+
+        @media (max-width: 600px) {
+
+            .container {
+
+                margin: 20px auto;
+
+                padding: 15px;
+            }
+
+
+            .header h1 {
+
+                font-size: 26px;
+            }
+
+
+            .question-box {
+
+                flex-direction: column;
+            }
+
+
+            .question-box button {
+
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>📚 RAG Document Assistant</h1>
+
+        <p>
+            Upload a document and ask questions about its content.
+        </p>
+
+    </div>
+
+
+    <!-- UPLOAD -->
+
+    <div class="card">
+
+        <h2>📄 Upload a Document</h2>
+
+        <p>
+            Supported formats: PDF and TXT
+        </p>
+
+
+        <div class="upload-area">
+
+            <input
+                type="file"
+                id="file"
+                accept=".pdf,.txt"
+            >
+
+            <br>
+
+
+            <button
+                id="uploadButton"
+                onclick="uploadFile()"
+            >
+                Upload Document
+            </button>
+
+
+            <p id="uploadStatus"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- QUESTION -->
+
+    <div class="card">
+
+        <h2>💬 Ask a Question</h2>
+
+
+        <div class="question-box">
+
+            <input
+                type="text"
+                id="question"
+                placeholder="Example: What does TechNova Solutions develop?"
+            >
+
+
+            <button
+                id="askButton"
+                onclick="askQuestion()"
+            >
+                Ask Question
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ANSWER -->
+
+    <div class="answer-card">
+
+        <div class="answer-title">
+
+            💡 Answer
+
+        </div>
+
+
+        <div id="answer">
+
+            Your answer will appear here.
+
+        </div>
+
+
+        <div id="source">
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        RAG Document Assistant
+        • Flask + ChromaDB + Ollama
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+    // -----------------------------
+    // Ask Question
+    // -----------------------------
+
+    async function askQuestion() {
+
+
+        const questionInput =
+            document.getElementById("question");
+
+
+        const answerBox =
+            document.getElementById("answer");
+
+
+        const sourceBox =
+            document.getElementById("source");
+
+
+        const askButton =
+            document.getElementById("askButton");
+
+
+        const question =
+            questionInput.value.trim();
+
+
+        if (!question) {
+
+            alert("Please enter a question.");
+
+            return;
+        }
+
+
+        // Show loading
+
+        answerBox.innerText =
+            "Thinking...";
+
+
+        sourceBox.innerText = "";
+
+
+        askButton.disabled = true;
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/api/ask",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body: JSON.stringify({
+
+                            question: question
+
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            // Check API response
+
+            if (!response.ok) {
+
+                answerBox.innerText =
+                    data.error ||
+                    "Something went wrong.";
+
+                return;
+            }
+
+
+            // Display answer
+
+            answerBox.innerText =
+                data.answer ||
+                "No answer received.";
+
+
+            // Display source
+
+            sourceBox.innerText =
+                "📄 Source: " +
+                (data.source ||
+                 "Unknown document");
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "Error:",
+                error
+            );
+
+
+            answerBox.innerText =
+                "Something went wrong while getting the answer.";
+
+
+        }
+
+        finally {
+
+            askButton.disabled = false;
+
+        }
+
+    }
+
+
+    // -----------------------------
+    // Upload File
+    // -----------------------------
+
+    async function uploadFile() {
+
+
+        const fileInput =
+            document.getElementById("file");
+
+
+        const uploadStatus =
+            document.getElementById(
+                "uploadStatus"
+            );
+
+
+        const uploadButton =
+            document.getElementById(
+                "uploadButton"
+            );
+
+
+        const file =
+            fileInput.files[0];
+
+
+        if (!file) {
+
+            alert(
+                "Please select a PDF or TXT file."
+            );
+
+            return;
+        }
+
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "file",
+            file
+        );
+
+
+        uploadStatus.innerText =
+            "Uploading and processing...";
+
+
+        uploadButton.disabled = true;
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/api/upload",
+                    {
+
+                        method: "POST",
+
+                        body: formData
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (response.ok) {
+
+
+                uploadStatus.innerText =
+                    "✅ " +
+                    data.message +
+                    " (" +
+                    data.chunks +
+                    " chunks created)";
+
+
+            }
+
+            else {
+
+
+                uploadStatus.innerText =
+                    "❌ " +
+                    (
+                        data.error ||
+                        "Upload failed."
+                    );
+
+            }
+
+
+        }
+
+        catch (error) {
+
+
+            console.error(
+                "Upload error:",
+                error
+            );
+
+
+            uploadStatus.innerText =
+                "❌ Upload failed.";
+
+        }
+
+
+        finally {
+
+            uploadButton.disabled = false;
+
+        }
+
+    }
+
+
+    // -----------------------------
+    // Press Enter to Ask
+    // -----------------------------
+
+    document
+        .getElementById("question")
+        .addEventListener(
+            "keypress",
+            function(event) {
+
+                if (event.key === "Enter") {
+
+                    askQuestion();
+
+                }
+
+            }
+        );
+
+
+</script>
+
+
+</body>
+
+</html>
